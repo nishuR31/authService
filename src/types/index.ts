@@ -15,3 +15,11 @@ export interface TokenPair {
   accessToken: string;
   refreshToken: string;
 }
+
+export interface AuditLogEntry{
+  action:string
+  entity:string
+  entityId:string
+  userId:string
+  details?:Record<string, any>
+}
