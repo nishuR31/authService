@@ -3,8 +3,10 @@ import UserRepository from "../repositories/userRepository";
 import { JwtPayload, RegisterBody, testUser, TokenPair } from "../types";
 import {
   ConflictError,
+  InternalServerError,
   NotFoundError,
   UnauthorizedError,
+  ValidationError,
 } from "../utils/errors/error";
 import { sendEmail, sendWelcomeEmail } from "../utils/helpers/email";
 import {

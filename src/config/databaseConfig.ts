@@ -1,6 +1,6 @@
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../generated/prisma/client";
-import { BCRYPT_SALT_ROUND, DATABASE_URL, NODE_ENV } from "./envKeys";
+import { BCRYPT_SALT_ROUND, DATABASE_URL, NODE_ENV } from "./envConfig";
 import bcrypt from "bcrypt";
 import logger from "./loggerConfig";
 
@@ -15,7 +15,7 @@ interface UserData {
   [key: string]: string;
 }
 
-const SALT_ROUNDS = parseInt(BCRYPT_SALT_ROUND, 10);
+const SALT_ROUNDS = BCRYPT_SALT_ROUND;
 
 async function hashUserPassword(data: UserData): Promise<void> {
   if (data && data.password) {
