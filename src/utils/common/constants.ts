@@ -1,8 +1,8 @@
-export const REFRESH_TOKEN_PREFIX = "rt:";
-export const ACCESS_TOKEN_PREFIX = "at:";
-export const JWT_BLACKLIST_PREFIX = "bl:";
+export const REFRESH_TOKEN_PREFIX: string = "rt:";
+export const ACCESS_TOKEN_PREFIX: string = "at:";
+export const JWT_BLACKLIST_PREFIX: string = "bl:";
 
-export const STATUS_CODES = {
+export const STATUS_CODES: Record<string, number> = {
   OK: 200,
   CREATED: 201,
   NO_CONTENT: 204,

@@ -1,7 +1,7 @@
 // import { Request, Response, NextFunction } from "express";
 
 import { FastifyReply, FastifyRequest } from "fastify";
-
+import { User } from "../types"
 import { verifyAccessToken } from "../utils/helpers/jwt";
 import { UnauthorizedError } from "../utils/errors/error";
 import asyncHandler from "../utils/common/asyncHandler";
@@ -26,6 +26,6 @@ export const authenticate = asyncHandler(
       id: decoded.id,
       email: decoded.email,
       role: decoded.role,
-    };
+    } as User;
   },
 );

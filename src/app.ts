@@ -4,36 +4,36 @@
 import { STATUS_CODES } from "./utils/common/constants";
 import { NODE_ENV } from "./config/envConfig";
 import apiRouter from "./routes/apiRoutes";
-import { sendError } from "./utils/common/response";
+import { sendError, sendSuccess } from "./utils/common/response";
 import fastifyApp from "./config/serverConfig";
 import { FastifyReply, FastifyRequest } from "fastify";
 const app = fastifyApp;
 
-app.get("/health", (req, res) => {
-  res.status(STATUS_CODES.OK).send({
+app.get("/health", (req: FastifyRequest, res: FastifyReply) => {
+  return sendSuccess(res, "health", 200, {
     success: true,
     message: "API is healthy and is running",
     timestamp: new Date().toLocaleString(),
     uptime: process.uptime(),
   });
 });
-app.get("/ping", (req, res) => {
-  res.status(STATUS_CODES.OK).send("pong");
+app.get("/ping", (req: FastifyRequest, res: FastifyReply) => {
+  return sendSuccess(res, "ping", 200, { "ping": "pong" })
 });
 
 app.get("/date", (req: FastifyRequest, res: FastifyReply) => {
-  res.code(200).send({ date: new Date().toLocaleDateString() });
+  return sendSuccess(res, "date", 200, { "date": new Date().toLocaleDateString() })
 });
 
 app.register(apiRouter, { prefix: "/api" });
 
-app.setNotFoundHandler((_req, res) => {
-  sendError(res, "Route not found", STATUS_CODES.NOT_FOUND);
+app.setNotFoundHandler((_req: FastifyRequest, res: FastifyReply) => {
+  return sendError(res, "Route not found", STATUS_CODES.NOT_FOUND);
 });
 
 app.setErrorHandler((err: any, _req: FastifyRequest, res: FastifyReply) => {
   const statusCode = err?.statusCode || STATUS_CODES.INTERNAL_SERVER_ERROR;
-  sendError(res, err?.message || "Something went wrong", statusCode, {
+  return sendError(res, err?.message || "Something went wrong", statusCode, {
     name: err?.name,
     details: err?.details || {},
     ...(NODE_ENV === "development" ? { stack: err?.stack } : {}),

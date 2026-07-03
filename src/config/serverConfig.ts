@@ -1,4 +1,4 @@
-import fastify from "fastify";
+import fastify, { FastifyReply, FastifyRequest } from "fastify";
 import cors from "@fastify/cors";
 import cookie from "@fastify/cookie";
 
@@ -8,14 +8,9 @@ let fastifyApp = fastify({ logger: true, exposeHeadRoutes: true });
 fastifyApp.register(cors, { origin: true });
 fastifyApp.register(cookie);
 
-fastifyApp.get("/", (req, res) => {
+fastifyApp.get("/", (req: FastifyRequest, res: FastifyReply) => {
   res.code(200).send({ message: "Server fired up" });
 });
 
-// app.setErrorHandler((err, req, res) => {
-//   (err && res.log.error(err),
-//     res.code(err?.statusCode || 500).send({
-//       message: !isDev ? err?.message : "something broke",
-//     }));
-// });
 export default fastifyApp;
+export type { fastifyApp };

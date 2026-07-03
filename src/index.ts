@@ -1,17 +1,11 @@
 import app from "./app";
 import { PORT, NODE_ENV } from "./config/envConfig";
-import { disconnectRedis } from "./config/redisConfig";
+import redis, { disconnectRedis } from "./config/redisConfig";
 import logger from "./config/loggerConfig";
 
 const startServer = async () => {
   try {
-    const address = await app.listen({ port: PORT });
-    logger.info(`AuthService started`);
-    logger.info(`   Environment : ${NODE_ENV}`);
-    logger.info(`   Port        : ${PORT}`);
-    logger.info(`   Address     : ${address}`);
-    logger.info(`   Health      : ${address}/health`);
-    logger.info(`   API Base    : ${address}/api/v1`);
+    const address = await app.listen({ port: PORT, host: "0.0.0.0" });
   } catch (err: any) {
     logger.error(err?.message || err);
     process.exit(1);
@@ -19,9 +13,7 @@ const startServer = async () => {
 };
 
 startServer();
-// await redis.connect();
-// logger.info(`   Redis      : ${"Ram installed"}`);
-
+redis.connect();
 async function gracefulShutdown(signal: string) {
   logger.info(`\n Received ${signal}. Shutting down gracefully…`);
 

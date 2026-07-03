@@ -12,18 +12,19 @@ import {
   verifyTotp,
 } from "../../controllers/authController";
 import { authenticate } from "../../middlewares/authMiddleware";
+import { FastifyPluginAsync } from "fastify";
+import { FastifyApp } from "../../types";
 
-const authRouter = Router();
+const authRouter: FastifyPluginAsync = async (app) => {
+  app.post("/register", register);
+  app.post("/login", login);
+  app.post("/refresh-token", refreshToken);
 
-authRouter.post("/register", register);
-authRouter.post("/login", login);
-authRouter.post("/refresh-token", refreshToken);
+  app.post("/logout", { preHandler: authenticate as any }, logout);
+  app.post("/change-password", { preHandler: authenticate as any }, changePassword);
 
-authRouter.post("/logout", authenticate, logout);
-authRouter.post("/change-password", authenticate, changePassword);
-
-authRouter.post("/totp/enable", authenticate, enableTotp);
-authRouter.post("/totp/verify", authenticate, verifyTotp);
-authRouter.post("/totp/disable", authenticate, disableTotp);
-
+  app.post("/totp/enable", { preHandler: authenticate }, enableTotp);
+  app.post("/totp/verify", { preHandler: authenticate }, verifyTotp);
+  app.post("/totp/disable", { preHandler: authenticate }, disableTotp);
+}
 export default authRouter;

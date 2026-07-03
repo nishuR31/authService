@@ -72,7 +72,7 @@ export async function blacklistToken(token: string): Promise<void> {
     if (ttl > 0) {
       await redis.setex(`${JWT_BLACKLIST_PREFIX}${token}`, ttl, "1");
     }
-  } catch {}
+  } catch { }
 }
 
 export async function blacklistTokens(
@@ -90,7 +90,7 @@ export async function blacklistTokens(
     if (ttl > 0) {
       await redis.setex(`${JWT_BLACKLIST_PREFIX}${token}`, ttl, "1");
     }
-  } catch {}
+  } catch { }
 }
 
 export async function removeRefreshToken(userId: string): Promise<void> {
@@ -102,8 +102,8 @@ export async function removeAccesssToken(userId: string): Promise<void> {
 
 export async function verifyAccessToken(token: string): Promise<JwtPayload> {
   try {
-    // const isBlacklisted = await redis.get(`${JWT_BLACKLIST_PREFIX}${token}`);
-    // if (isBlacklisted) throw new UnauthorizedError("Token has been revoked");
+    const isBlacklisted = await redis.get(`${JWT_BLACKLIST_PREFIX}${token}`);
+    if (isBlacklisted) throw new UnauthorizedError("Token has been revoked");
 
     const decoded = jwt.verify(token, JWT_ACCESS_SECRET) as JwtPayload;
     return decoded;
@@ -113,9 +113,13 @@ export async function verifyAccessToken(token: string): Promise<JwtPayload> {
   }
 }
 
-export function verifyRefreshToken(token: string): JwtPayload {
+export async function verifyRefreshToken(token: string): Promise<JwtPayload> {
   try {
-    return jwt.verify(token, JWT_REFRESH_SECRET) as JwtPayload;
+    const isBlacklisted = await redis.get(`${JWT_BLACKLIST_PREFIX}${token}`);
+    if (isBlacklisted) throw new UnauthorizedError("Token has been revoked");
+
+    const decoded = jwt.verify(token, JWT_REFRESH_SECRET) as JwtPayload;
+    return decoded;
   } catch (error) {
     throw new UnauthorizedError("Invalid or expired refresh token.");
   }

@@ -9,7 +9,7 @@ import {
 } from "./envConfig";
 import logger from "./loggerConfig";
 
-const transporter = nodemailer.createTransport({
+const transporter: nodemailer.Transporter = nodemailer.createTransport({
   host: SMTP_HOST,
   port: SMTP_PORT,
   secure: SMTP_PORT === 465,
@@ -24,7 +24,7 @@ export const EMAIL_FROM = `"${SMTP_FROM_NAME}" <${SMTP_FROM_EMAIL}>`;
 transporter
   .verify()
   .then(() => logger.info("SMTP transporter verified"))
-  .catch((err) =>
+  .catch((err: Error) =>
     logger.warn("SMTP verification failed (emails will not send)", {
       error: err.message,
     }),

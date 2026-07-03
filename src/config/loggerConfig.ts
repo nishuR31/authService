@@ -2,7 +2,7 @@ import winston from "winston";
 import { LOG_LEVEL, NODE_ENV } from "./envConfig";
 import DailyRotateFile from "winston-daily-rotate-file";
 
-const isDev = NODE_ENV === "development";
+const isDev: boolean = NODE_ENV === "development";
 
 const customFormat = winston.format.printf(
   ({ timestamp, level, message, stack, ...meta }) => {

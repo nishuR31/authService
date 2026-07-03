@@ -1,7 +1,7 @@
-// import { Router } from "express";
 import authRouter from "./authRoutes";
+import { FastifyPluginAsync } from "fastify";
 
-const v1Router = (app: any) => {
+const v1Router: FastifyPluginAsync = async (app) => {
   app.register(authRouter, { prefix: "/auth" });
 };
 
