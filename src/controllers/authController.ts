@@ -72,12 +72,12 @@ export const googleCallback = asyncHandler(
 
     return sendSuccess(
       res,
+      "Google login successful",
+      STATUS_CODES.OK,
       {
         user: result.user,
         accessToken: result.tokens.accessToken,
       },
-      "Google login successful",
-      STATUS_CODES.OK,
     );
   },
 );
@@ -91,7 +91,7 @@ export const passless = asyncHandler(
       query: { token, role },
     });
     await sendPasswordlessLoginEmail(email, name ?? "User", 5, link);
-    sendSuccess(res, link, "Passwordless login link successfully send", 200);
+    sendSuccess(res, "Passwordless login link successfully send", 200, link);
   },
 );
 export const testPassless = asyncHandler(
@@ -104,7 +104,7 @@ export const testPassless = asyncHandler(
       query: { token, role },
     });
     await sendPasswordlessLoginEmail(email, name ?? "User", 5, link);
-    sendSuccess(res, link, "Test Passwordless login link successfully send", 200);
+    sendSuccess(res, "Test Passwordless login link successfully send", 200, link);
   },
 );
 export const passlessVerify = asyncHandler(
@@ -120,7 +120,7 @@ export const passlessVerify = asyncHandler(
     let { token, role } = req.query;
     let response = await authService.passlessVerify(token, role);
 
-    sendSuccess(res, response, "Welcome back", 200);
+    sendSuccess(res, "Welcome back", 200, response);
   },
 );
 export const testPasslessVerify = asyncHandler(
@@ -136,7 +136,7 @@ export const testPasslessVerify = asyncHandler(
     let { token, role } = req.query;
     let response = await authService.testPasslessVerify(token, role);
 
-    sendSuccess(res, response, "Test Welcome back", 200);
+    sendSuccess(res, "Test Welcome back", 200, response);
   },
 );
 
@@ -149,12 +149,12 @@ export const register = asyncHandler(
 
     sendSuccess(
       res,
+      "Registration successful",
+      STATUS_CODES.CREATED,
       {
         user: result.user,
         accessToken: result.tokens.accessToken,
       },
-      "Registration successful",
-      STATUS_CODES.CREATED,
     );
   },
 );
@@ -166,9 +166,9 @@ export const login = asyncHandler(async (req: LoginRequest, res: FastifyReply) =
   if (result.requireTotp) {
     sendSuccess(
       res,
-      { requireTotp: true, userId: result.user.id },
       "TOTP required",
       STATUS_CODES.OK,
+      { requireTotp: true, userId: result.user.id },
     );
     return;
   }
@@ -177,9 +177,9 @@ export const login = asyncHandler(async (req: LoginRequest, res: FastifyReply) =
 
   sendSuccess(
     res,
-    { user: result.user, accessToken: result.tokens.accessToken },
     "Login successful",
     STATUS_CODES.OK,
+    { user: result.user, accessToken: result.tokens.accessToken },
   );
 });
 
@@ -189,7 +189,7 @@ export const logout = asyncHandler(async (req: FastifyRequest, res: FastifyReply
   await authService.logout(req.user!.id, token);
 
   res.clearCookie("refreshToken");
-  sendSuccess(res, null, "Logout successful", STATUS_CODES.OK);
+  sendSuccess(res, "Logout successful", STATUS_CODES.OK, null);
 });
 
 export const refreshToken = asyncHandler(
@@ -201,9 +201,9 @@ export const refreshToken = asyncHandler(
 
     sendSuccess(
       res,
-      { accessToken: tokens.accessToken },
       "Token refreshed",
       STATUS_CODES.OK,
+      { accessToken: tokens.accessToken },
     );
   },
 );
@@ -222,7 +222,7 @@ export const changePassword = asyncHandler(
       token,
     );
     res.clearCookie("refreshToken");
-    sendSuccess(res, null, "Password changed successfully", STATUS_CODES.OK);
+    sendSuccess(res, "Password changed successfully", STATUS_CODES.OK, null);
   },
 );
 
@@ -234,9 +234,9 @@ export const enableTotp = asyncHandler(
     const result = await authService.enableTotp(req.user!.id, req.body.password);
     sendSuccess(
       res,
-      result,
       "TOTP setup initiated. Scan QR code and verify.",
       STATUS_CODES.OK,
+      result,
     );
   },
 );
@@ -247,7 +247,7 @@ export const verifyTotp = asyncHandler(
     res: FastifyReply,
   ) => {
     await authService.verifyAndActivateTotp(req.user!.id, req.body.token);
-    sendSuccess(res, null, "TOTP enabled successfully", STATUS_CODES.OK);
+    sendSuccess(res, "TOTP enabled successfully", STATUS_CODES.OK, null);
   },
 );
 
@@ -257,6 +257,6 @@ export const disableTotp = asyncHandler(
     res: FastifyReply,
   ) => {
     await authService.disableTotp(req.user!.id, req.body.password);
-    sendSuccess(res, null, "TOTP disabled successfully", STATUS_CODES.OK);
+    sendSuccess(res, "TOTP disabled successfully", STATUS_CODES.OK, null);
   },
 );

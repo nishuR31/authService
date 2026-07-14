@@ -293,7 +293,7 @@ export default class AuthService {
   }
 
   async refreshTokens(refreshToken: string): Promise<TokenPair> {
-    const decoded = verifyRefreshToken(refreshToken);
+    const decoded = await verifyRefreshToken(refreshToken);
 
     const storedToken = await getStoredRefreshToken(decoded.id);
     if (!storedToken || storedToken !== refreshToken) {

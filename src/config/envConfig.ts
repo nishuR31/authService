@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 export const PORT: number = Number(process.env.PORT) || 3001;
-export const DATABASE_URL: string = process.env.DATABASE_URL;
+export const DATABASE_URL: string = process.env.DATABASE_URL || "";
 export const NODE_ENV: string = process.env.NODE_ENV || "development";
 export const BCRYPT_SALT_ROUND: number = Number(process.env.BCRYPT_SALT_ROUND) || 10;
 export const LOG_LEVEL: string =
@@ -28,3 +28,6 @@ export const GOOGLE_REDIRECT_URI: string =
   process.env.GOOGLE_REDIRECT_URI || "http://localhost:3000/api/v1/auth/google/callback";
 
 export const TOTP_ISSUER: string = process.env.TOTP_ISSUER || "Auth Service";
+
+export const IMGBB_API_KEY: string = process.env.IMGBB_API_KEY || "";
+export const IMGBB_API_URL: string = process.env.IMGBB_API_URL || "https://api.imgbb.com/1/upload";

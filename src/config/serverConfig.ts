@@ -1,12 +1,40 @@
 import fastify, { FastifyReply, FastifyRequest } from "fastify";
 import cors from "@fastify/cors";
 import cookie from "@fastify/cookie";
-
-// let isDev = process.env.NODE_ENV === "dev";
+import swagger from "@fastify/swagger";
+import swaggerUi from "@fastify/swagger-ui";
+import multipart from "@fastify/multipart";
 
 let fastifyApp = fastify({ logger: true, exposeHeadRoutes: true });
-fastifyApp.register(cors, { origin: true });
-fastifyApp.register(cookie);
+
+await fastifyApp.register(cors, { origin: true });
+await fastifyApp.register(cookie);
+
+await fastifyApp.register(multipart, {
+  limits: {
+    fileSize: 10 * 1024 * 1024,
+    files: 1,
+  },
+});
+
+await fastifyApp.register(swagger, {
+  openapi: {
+    info: {
+      title: "AuthService API",
+      description: "Authentication and User Management Microservice",
+      version: "1.0.0",
+    },
+    components: {
+      securitySchemes: { bearerAuth: { type: "http", scheme: "bearer", bearerFormat: "JWT" } },
+    },
+  },
+});
+
+await fastifyApp.register(swaggerUi, {
+  routePrefix: "/docs",
+  uiConfig: { deepLinking: true },
+  staticCSP: false,
+});
 
 fastifyApp.get("/", (req: FastifyRequest, res: FastifyReply) => {
   res.code(200).send({ message: "Server fired up" });
@@ -14,3 +42,4 @@ fastifyApp.get("/", (req: FastifyRequest, res: FastifyReply) => {
 
 export default fastifyApp;
 export type { fastifyApp };
+
