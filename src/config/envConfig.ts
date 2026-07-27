@@ -1,33 +1,76 @@
 import dotenv from "dotenv";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+// Load .env from CWD, backend/.env, or relative to src/config
 dotenv.config();
+dotenv.config({ path: path.resolve(__dirname, "../../.env") });
+dotenv.config({ path: path.resolve(process.cwd(), "backend/.env") });
+import { z } from "zod";
 
-export const PORT: number = Number(process.env.PORT) || 3001;
-export const DATABASE_URL: string = process.env.DATABASE_URL || "";
-export const NODE_ENV: string = process.env.NODE_ENV || "development";
-export const BCRYPT_SALT_ROUND: number = Number(process.env.BCRYPT_SALT_ROUND) || 10;
-export const LOG_LEVEL: string =
-  process.env.LOG_LEVEL || (NODE_ENV === "development" ? "debug" : "info");
+const envSchema = z.object({
+  HOST: z.string().default("0.0.0.0"),
+  NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
+  API_PORT: z.coerce.number().int().positive().default(3000),
+  WEB_ORIGIN: z.string().url().default("http://localhost:5173"),
+  BUSINESS_NAME: z.string().default("RanchiKart"),
+  // Database
+  DATABASE_URL: z.string().min(1),
+  DIRECT_URL: z.string().optional(),
 
-export const SMTP_HOST: string = process.env.SMTP_HOST || "smtp.gmail.com";
-export const SMTP_PORT: number = parseInt(process.env.SMTP_PORT || "587", 10);
-export const SMTP_USER: string = process.env.SMTP_USER || "";
-export const SMTP_PASSWORD: string = process.env.SMTP_PASSWORD || "";
-export const SMTP_FROM_NAME: string = process.env.SMTP_FROM_NAME || "AuthService";
-export const SMTP_FROM_EMAIL: string = process.env.SMTP_FROM_EMAIL || "noreply@authservice.com";
+  // Auth
+  JWT_ACCESS_SECRET: z.string().min(16).default("dev-access-secret-change-in-production"),
+  JWT_REFRESH_SECRET: z.string().min(16).default("dev-refresh-secret-change-in-production"),
+  JWT_EXPIRES_IN_ACCESS: z.string().default("15m"),
+  JWT_EXPIRES_IN_REFRESH: z.string().default("7d"),
 
-export const REDIS_URL: string = process.env.REDIS_URL || "redis://localhost:6379";
+  // Rate Limiting
+  RATE_LIMIT_MAX: z.coerce.number().int().positive().default(120),
+  RATE_LIMIT_WINDOW: z.string().default("1 minute"),
 
-export const JWT_ACCESS_SECRET: string = process.env.JWT_ACCESS_SECRET || "dev-access-secret";
-export const JWT_REFRESH_SECRET: string = process.env.JWT_REFRESH_SECRET || "dev-refresh-secret";
-export const JWT_ACCESS_EXPIRY: string = process.env.JWT_ACCESS_EXPIRY || "1h";
-export const JWT_REFRESH_EXPIRY: string = process.env.JWT_REFRESH_EXPIRY || "7d";
+  // Redis (optional)
+  REDIS_URL: z.string().url().optional().or(z.literal("")),
 
-export const GOOGLE_CLIENT_ID: string = process.env.GOOGLE_CLIENT_ID || "";
-export const GOOGLE_CLIENT_SECRET: string = process.env.GOOGLE_CLIENT_SECRET || "";
-export const GOOGLE_REDIRECT_URI: string =
-  process.env.GOOGLE_REDIRECT_URI || "http://localhost:3000/api/v1/auth/google/callback";
+  // Razorpay (optional — mock mode without keys)
+  RAZORPAY_KEY_ID: z.string().optional().or(z.literal("")),
+  RAZORPAY_KEY_SECRET: z.string().optional().or(z.literal("")),
+  RAZORPAY_WEBHOOK_SECRET: z.string().optional().or(z.literal("")),
+  RAZORPAY_KEY_ID_TEST: z.string().optional().or(z.literal("")),
+  RAZORPAY_KEY_SECRET_TEST: z.string().optional().or(z.literal("")),
 
-export const TOTP_ISSUER: string = process.env.TOTP_ISSUER || "Auth Service";
+  // Email/SMTP (optional — silent no-op without keys)
+  SMTP_HOST: z.string().optional().or(z.literal("")),
+  SMTP_PORT: z.coerce.number().int().positive().default(587),
+  SMTP_USER: z.string().optional().or(z.literal("")),
+  SMTP_PASS: z.string().optional().or(z.literal("")),
+  SMTP_FROM: z
+    .string()
+    .default(`${process.env.BUSINESS_NAME || "RanchiKart"} <${process.env.SMTP_USER || process.env.GMAIL_USER || ""}>`),
 
-export const IMGBB_API_KEY: string = process.env.IMGBB_API_KEY || "";
-export const IMGBB_API_URL: string = process.env.IMGBB_API_URL || "https://api.imgbb.com/1/upload";
+  // Email Sending Provider Preference ("auto" | "gmail" | "smtp")
+  EMAIL_TRANSPORT: z.enum(["auto", "gmail", "smtp"]).default("auto"),
+
+  // Gmail API (HTTPS REST API for platforms like Render where outbound SMTP is blocked)
+  GMAIL_CLIENT_ID: z.string().optional().or(z.literal("")),
+  GMAIL_CLIENT_SECRET: z.string().optional().or(z.literal("")),
+  GMAIL_REFRESH_TOKEN: z.string().optional().or(z.literal("")),
+  GMAIL_USER: z.string().optional().or(z.literal("")),
+
+  //Google OAuth
+  GOOGLE_CLIENT_ID: z.string().optional().or(z.literal("")),
+  GOOGLE_CLIENT_SECRET: z.string().optional().or(z.literal("")),
+  GOOGLE_CALLBACK_URL: z.string().url().optional().or(z.literal("")),
+
+  // Admin
+  ADMIN_EMAIL: z.string().email().optional(),
+
+  // Image hosting (imgbb)
+  IMGBB_API_KEY: z.string().min(1).optional(),
+  IMGBB_API_URL: z.string().url().default("https://api.imgbb.com/1/upload"),
+});
+
+const env = envSchema.parse(process.env);
+
+export default env;

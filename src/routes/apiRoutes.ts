@@ -1,8 +1,8 @@
 // import { Router } from "express";
 import v1Router from "./v1/v1Routes";
-import { FastifyPluginAsync } from "fastify";
+import { FastifyInstance } from "fastify";
 
-const apiRouter: FastifyPluginAsync = async (app) => {
+const apiRouter = async (app: FastifyInstance) => {
   app.register(v1Router, { prefix: "/v1" });
 };
 

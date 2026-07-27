@@ -4,12 +4,18 @@ import cookie from "@fastify/cookie";
 import swagger from "@fastify/swagger";
 import swaggerUi from "@fastify/swagger-ui";
 import multipart from "@fastify/multipart";
+import compress from "@fastify/compress";
+import rateLimiter from "../middlewares/rateLimiter";
+import version from "../utils/helpers/version";
 
 let fastifyApp = fastify({ logger: true, exposeHeadRoutes: true });
 
 await fastifyApp.register(cors, { origin: true });
 await fastifyApp.register(cookie);
-
+await fastifyApp.register(rateLimiter);
+await fastifyApp.register(compress, {
+  encodings: ['gzip', 'deflate', 'br'],
+});
 await fastifyApp.register(multipart, {
   limits: {
     fileSize: 10 * 1024 * 1024,
@@ -37,9 +43,8 @@ await fastifyApp.register(swaggerUi, {
 });
 
 fastifyApp.get("/", (req: FastifyRequest, res: FastifyReply) => {
-  res.code(200).send({ message: "Server fired up" });
+  res.code(200).send({ message: "Server fired up", version: version });
 });
 
 export default fastifyApp;
 export type { fastifyApp };
-
