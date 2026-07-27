@@ -6,24 +6,10 @@ import { NODE_ENV } from "./config/envConfig";
 import apiRouter from "./routes/apiRoutes";
 import { sendError, sendSuccess } from "./utils/common/response";
 import fastifyApp from "./config/serverConfig";
+
 import { FastifyReply, FastifyRequest } from "fastify";
 const app = fastifyApp;
 
-app.get("/health", (req: FastifyRequest, res: FastifyReply) => {
-  return sendSuccess(res, "health", 200, {
-    success: true,
-    message: "API is healthy and is running",
-    timestamp: new Date().toLocaleString(),
-    uptime: process.uptime(),
-  });
-});
-app.get("/ping", (req: FastifyRequest, res: FastifyReply) => {
-  return sendSuccess(res, "ping", 200, { "ping": "pong" })
-});
-
-app.get("/date", (req: FastifyRequest, res: FastifyReply) => {
-  return sendSuccess(res, "date", 200, { "date": new Date().toLocaleDateString() })
-});
 
 app.register(apiRouter, { prefix: "/api" });
 
