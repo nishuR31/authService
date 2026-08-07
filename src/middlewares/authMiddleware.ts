@@ -14,7 +14,7 @@ export const authenticate = asyncHandler(
       throw new UnauthorizedError("Access denied. No token provided. Please log in.");
     }
 
-    const token = authHeader.split(" ")[1] || req.cookies.refreshToken;
+    const token = authHeader.split(" ")[1] || req.cookies.accessToken;
 
     if (!token) {
       throw new UnauthorizedError("Access denied. Malformed token.");
